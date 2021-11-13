@@ -23,12 +23,12 @@ mongoose.connection
     .on("error", (error) => console.log(error));
 
 //Models
-const BookmarkSchema = new mongoose.Schema({
+const bookmarkSchema = new mongoose.Schema({
     title: String,
     url: String
 });
 
-const Bookmark = mongoose.model("Bookmark", BookmarkSchema);
+const Bookmark = mongoose.model("Bookmark", bookmarkSchema);
 
 //Middleware
 app.use(cors())
@@ -46,14 +46,40 @@ app.get("/", (req, res) => {
 //Index Route
 app.get("/bookmarks", async (req, res) => {
     try {
-        res.json(await Bookmark.create(req.body));
+        res.json(await Bookmark.find({}));
     } catch (error) {
-        res.status(400).json(error)
+        res.status(400).json((error))
     }
 });
 
 //Create Route
+app.post("/bookmarks", async (req, res) => {
+    try {
+        res.json(await Bookmark.create(req.body));
+    } catch (error) {
+        res.status(400).json({error});
+    }
+});
 
+//update route 
+app.put("/bookmarks/:id", async (req, res) => {
+    try {
+        res.json(
+            await Bookmark.findByIdAndUpdate(req.params.id, req.body,
+                {new: true})
+        )
+    } catch (error){
+        res.status(400).json({error})
+    }
+});
+
+app.delete("/bookmarks/:id", async (req, res) => {
+    try {
+        res.json(await Bookmark.findByIdAndRemove(req.params.id))
+    } catch (error) {
+        res.status(400).json({error})
+    }
+})
 
 //Listener
 app.listen(PORT, () => console.log(`listening on PORT ${PORT}`));
